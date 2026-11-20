@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pokédex // Database</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Rajdhani:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050914;--pan:#0b1324;--line:#1c2c4a;--ink:#d8e6ff;--mut:#7e92b8;--cy:#36e2ff;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font:500 17px/1.5 Rajdhani,"Segoe UI",system-ui,sans-serif;background:radial-gradient(900px 500px at 80% -10%,rgba(54,226,255,.16),transparent 60%),radial-gradient(700px 500px at -10% 40%,rgba(120,80,255,.14),transparent 60%),linear-gradient(rgba(54,226,255,.06) 1px,transparent 1px) 0 0/44px 44px,linear-gradient(90deg,rgba(54,226,255,.06) 1px,transparent 1px) 0 0/44px 44px,var(--bg);background-attachment:fixed}
+header{padding:28px 16px 6px;max-width:980px;margin:auto}
+h1,h2{font-family:Orbitron,Rajdhani,sans-serif}
+h1{font-size:clamp(28px,7vw,52px);line-height:1.1;margin:0;font-weight:800;letter-spacing:.04em;text-shadow:0 0 18px rgba(54,226,255,.55)}
+header p{color:var(--mut);margin:8px 0 0;max-width:56ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);background:linear-gradient(var(--bg) 80%,transparent);padding:12px 16px 6px;max-width:980px;margin:auto;z-index:5}
+input{width:100%;font:inherit;padding:10px 16px;border:1px solid var(--cy);background:rgba(11,19,36,.9);color:var(--ink);clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+input::placeholder{color:var(--mut)}
+input:focus-visible,button:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px}
+.chip{flex:none;font:inherit;font-size:15px;padding:0 14px;border:1px solid var(--line);background:var(--pan);color:var(--ink);cursor:pointer;border-bottom:3px solid var(--c,var(--cy))}
+.chip[aria-pressed="true"]{background:var(--c,var(--cy));color:#03101a;border-color:var(--c,var(--cy))}
+main{max-width:980px;margin:auto;padding:0 16px 40px}
+#cnt{color:var(--cy);font-size:14px;margin:6px 0 12px;letter-spacing:.08em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.card{position:relative;text-align:left;font:inherit;color:var(--ink);border:0;padding:1px;cursor:pointer;background:linear-gradient(135deg,var(--c),var(--line) 55%);clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px))}
+.card>span{display:block;height:100%;padding:12px;background:linear-gradient(160deg,#0e1a31,#091022);clip-path:inherit}
+.card img,.card svg{width:96px;height:96px;object-fit:contain;display:block;margin:0 auto 6px;filter:drop-shadow(0 0 8px var(--c))}
+.card em{font:normal 12px Orbitron,sans-serif;color:var(--c)}
+.card b{display:block;font-size:19px;line-height:1.2}
+.tg{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.tg i{font-style:normal;font-size:12px;border:1px solid var(--c);color:var(--c);padding:0 8px}
+dialog{border:0;padding:1px;width:min(92vw,460px);color:var(--ink);background:linear-gradient(135deg,var(--c),var(--line));clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,22px 100%,0 calc(100% - 22px))}
+dialog::backdrop{background:rgba(2,5,12,.8)}
+.in{background:linear-gradient(160deg,#0e1a31,#070d1b);clip-path:inherit;padding:20px;position:relative;overflow:hidden}
+.in::after{content:"";position:absolute;left:0;right:0;height:60px;top:-60px;background:linear-gradient(transparent,rgba(54,226,255,.25),transparent);animation:sc 1.1s ease-out 1}
+@keyframes sc{to{top:110%}}
+@media (prefers-reduced-motion:reduce){.in::after{animation:none}}
+.in img,.in svg{width:150px;height:150px;object-fit:contain;display:block;margin:4px auto;filter:drop-shadow(0 0 14px var(--c))}
+.in h2{margin:0;font-size:26px;text-align:center;letter-spacing:.05em}
+.in .no{text-align:center;color:var(--c);font:12px Orbitron,sans-serif}
+.in .tg{justify-content:center}
+.row{display:grid;grid-template-columns:72px 34px 1fr;align-items:center;gap:8px;font-size:15px;margin-top:6px}
+.seg{display:flex;gap:3px}
+.seg span{flex:1;height:10px;background:var(--line)}
+.seg span.on{background:var(--c);box-shadow:0 0 6px var(--c)}
+.x{position:absolute;right:12px;top:12px;font:inherit;border:1px solid var(--line);background:rgba(0,0,0,.4);color:var(--ink);width:36px;height:36px;font-size:18px;cursor:pointer;z-index:2}
+footer{max-width:980px;margin:auto;padding:0 16px 32px;color:var(--mut);font-size:14px}
+</style>
+</head>
+<body>
+<header>
+<h1>POKÉDEX // DATABASE</h1>
+<p>Field data on 100 Pokémon: type, abilities, base stats and a short briefing. Select a unit to open its full profile.</p>
+</header>
+<div class="bar">
+<input id="q" type="search" placeholder="Search by name, number or ability" aria-label="Search Pokémon">
+<div class="chips" id="chips"></div>
+</div>
+<main>
+<div id="cnt"></div>
+<div class="grid" id="g"></div>
+</main>
+<footer>100 Pokémon are loaded with their abilities (search works by ability too). Official artwork is loaded via PokeAPI sprites with custom type emblems as offline fallback. Stat bars scale to 160.</footer>
+<dialog id="d"></dialog>
+<script>
+var T={Grass:"#3f9b4b",Fire:"#e5612b",Water:"#3a7bd5",Electric:"#c99a00",Normal:"#7d8594",Fairy:"#d4659e",Fighting:"#b9382f",Rock:"#8d7a4c",Ground:"#a8793a",Ghost:"#6a4d9c",Poison:"#9348a8",Flying:"#5a8fd6",Dragon:"#4a54c9",Psychic:"#d1456f",Ice:"#3fa7b8",Steel:"#5f7f93",Dark:"#4d4350",Bug:"#8fa82a"};
+var P=[
+[1,"Bulbasaur","Grass/Poison",45,49,49,45,"Born with a plant bulb on its back that grows with it."],
+[3,"Venusaur","Grass/Poison",80,82,83,80,"Its big flower soaks up sunlight for energy."],
+[4,"Charmander","Fire",39,52,43,65,"The flame on its tail shows how healthy it is."],
+[6,"Charizard","Fire/Flying",78,84,78,100,"Soars the skies and breathes scorching fire."],
+[7,"Squirtle","Water",44,48,65,43,"Hides in its shell and sprays strong jets of water."],
+[9,"Blastoise","Water",79,83,100,78,"Fires high-pressure water from cannons in its shell."],
+[25,"Pikachu","Electric",35,55,40,90,"Stores electricity in its cheeks. The most famous Pokémon."],
+[39,"Jigglypuff","Normal/Fairy",115,45,20,20,"Sings a soft lullaby that puts everyone to sleep."],
+[54,"Psyduck","Water",50,52,48,55,"Always has a headache, until its hidden power wakes up."],
+[68,"Machamp","Fighting",90,130,80,55,"Throws a hundred punches in a flash with four arms."],
+[94,"Gengar","Ghost/Poison",60,65,60,110,"Hides in shadows and gives people a chill."],
+[95,"Onix","Rock/Ground",35,45,160,70,"A giant rock snake that tunnels underground."],
+[130,"Gyarados","Water/Flying",95,125,79,81,"A violent Pokémon that can wreck whole towns when enraged."],
+[131,"Lapras","Water/Ice",130,85,80,60,"Gentle; carries people across the sea on its back."],
+[133,"Eevee","Normal",55,55,50,55,"Can evolve into many different forms."],
+[143,"Snorlax","Normal",160,110,65,30,"Eats and sleeps all day. Very heavy."],
+[149,"Dragonite","Dragon/Flying",91,134,95,80,"A kind dragon known for rescuing ships lost at sea."],
+[150,"Mewtwo","Psychic",106,110,90,130,"A powerful Pokémon created through genetic engineering."],
+[151,"Mew","Psychic",100,100,100,100,"Said to hold the genetic code of every Pokémon."],
+[197,"Umbreon","Dark",95,65,110,65,"The rings on its body glow in the moonlight."],
+[249,"Lugia","Psychic/Flying",106,90,130,110,"Lives deep in the sea; its wings can stir up storms."],
+[282,"Gardevoir","Psychic/Fairy",68,65,65,80,"Would risk its life to protect its Trainer."],
+[384,"Rayquaza","Dragon/Flying",105,150,90,95,"Guardian of the sky that lives high above the clouds."],
+[445,"Garchomp","Dragon/Ground",108,130,95,102,"A shark-like dragon that flies at jet speed."],
+[448,"Lucario","Fighting/Steel",70,110,70,90,"Can sense the aura of other living things."],
+[658,"Greninja","Water/Dark",72,95,67,122,"Ninja-quick; throws shuriken made of water."],
+[906,"Sprigatito","Grass",40,61,54,65,"Grass-cat starter; Liko's first partner in Horizons."],
+[907,"Floragato","Grass",61,80,63,83,"Evolved Sprigatito with a flower-bud stalk on its neck."],
+[908,"Meowscarada","Grass/Dark",76,110,70,123,"A masked trickster that moves like a stage magician."],
+[909,"Fuecoco","Fire",67,45,59,36,"Roy's laid-back fire croc; sleepy but determined."],
+[910,"Crocalor","Fire",81,55,78,49,"Evolved Fuecoco whose flames burn hotter."],
+[911,"Skeledirge","Fire/Ghost",104,75,100,66,"Sings with a soulful voice; Roy's final starter form."],
+[912,"Quaxly","Water",55,65,45,50,"A neat, tidy duckling that loves to dance."],
+[913,"Quaxwell","Water",70,85,65,65,"Dot's partner; trains hard with its signature dance moves."],
+[914,"Quaquaval","Water/Fighting",85,120,80,85,"Dances with fierce style like a carnival performer."],
+[957,"Tinkatink","Fairy/Steel",50,45,45,58,"Hammer-wielding Pokémon with Dot's lively team."],
+[958,"Tinkatuff","Fairy/Steel",65,55,55,78,"Evolved Tinkatink; swings its hammer with growing skill."],
+[959,"Tinkaton","Fairy/Steel",85,75,77,94,"Hits hard with a huge hammer built from scrap."],
+[1024,"Terapagos","Normal",90,65,85,60,"A mysterious turtle linked to the power of Terastallization."],
+[916,"Oinkologne","Normal",110,100,75,65,"A pig Pokémon with a famous scent attack."],
+[855,"Polteageist","Ghost",60,65,65,70,"A haunted-teacup ghost that lurks in tea sets."],
+[618,"Stunfisk","Ground/Electric",109,66,84,32,"Flat, camouflaged fish that zaps anything that steps on it."],
+[479,"Rotom","Electric/Ghost",50,50,77,91,"Lives inside devices; plays Roy's phone partner."],
+[2,"Ivysaur","Grass/Poison",60,62,63,60,"Its bulb blooms as it grows stronger."],
+[5,"Charmeleon","Fire",58,64,58,80,"Fierce and hot-tempered in battle."],
+[8,"Wartortle","Water",59,63,80,58,"Its fluffy tail stores long life."],
+[12,"Butterfree","Bug/Flying",60,45,50,70,"Flies in swarms scattering sleep powder."],
+[15,"Beedrill","Bug/Poison",65,90,40,75,"Stings fast with twin poison lances."],
+[18,"Pidgeot","Normal/Flying",83,80,75,101,"Soars at high speed with great eyesight."],
+[26,"Raichu","Electric",60,90,55,110,"Evolved Pikachu with stronger shocks."],
+[37,"Vulpix","Fire",38,41,40,65,"Six tails, each warm as a flame."],
+[59,"Arcanine","Fire",90,110,80,95,"A legendary-speed, loyal fire dog."],
+[63,"Abra","Psychic",25,20,15,90,"Sleeps 18 hours a day, teleports when scared."],
+[65,"Alakazam","Psychic",55,50,45,120,"Has an IQ of about 5,000."],
+[74,"Geodude","Rock/Ground",40,80,100,20,"Looks like a rock on mountain paths."],
+[76,"Golem","Rock/Ground",80,120,130,45,"Rolls down slopes like a boulder."],
+[77,"Ponyta","Fire",50,85,55,90,"Fiery mane, runs very fast."],
+[79,"Slowpoke","Water/Psychic",90,65,65,15,"Slow to react; always dreamy."],
+[81,"Magnemite","Electric/Steel",25,35,70,45,"Floats using electromagnetic waves."],
+[92,"Gastly","Ghost/Poison",30,35,30,80,"A gas-like ghost that can slip through walls."],
+[104,"Cubone","Ground",50,50,95,35,"Wears its lost mother's skull."],
+[115,"Kangaskhan","Normal",105,95,80,90,"A caring parent that guards its baby."],
+[123,"Scyther","Bug/Flying",70,110,80,105,"Slices with its sharp scythes."],
+[129,"Magikarp","Water",20,10,55,80,"Weak, but evolves into Gyarados."],
+[132,"Ditto","Normal",48,48,48,48,"Transforms into whatever it sees."],
+[134,"Vaporeon","Water",130,65,60,65,"Melts into water; loves clean lakes."],
+[135,"Jolteon","Electric",65,65,60,130,"Charges up its spiky fur."],
+[136,"Flareon","Fire",65,130,60,65,"Body holds a very hot flame sac."],
+[144,"Articuno","Ice/Flying",90,85,100,85,"A legendary bird of ice."],
+[145,"Zapdos","Electric/Flying",90,90,85,100,"A legendary bird of lightning."],
+[146,"Moltres","Fire/Flying",90,100,90,90,"A legendary bird of fire."],
+[147,"Dratini","Dragon",41,64,45,50,"A rare, gentle dragon that sheds its skin."],
+[152,"Chikorita","Grass",45,49,65,45,"Its leaf spreads a soothing scent."],
+[155,"Cyndaquil","Fire",39,52,43,65,"Shy; ignites its back when startled."],
+[158,"Totodile","Water",50,65,64,43,"Playful; bites anything in reach."],
+[175,"Togepi","Fairy",35,20,65,20,"Shares happiness stored in its shell."],
+[196,"Espeon","Psychic",65,65,60,110,"Senses the future with its fur."],
+[212,"Scizor","Bug/Steel",70,130,100,65,"Its steel pincers deliver crushing power."],
+[214,"Heracross","Bug/Fighting",80,125,75,85,"Tosses foes with its mighty horn."],
+[248,"Tyranitar","Rock/Dark",100,134,110,61,"A mountain-sized beast with huge power."],
+[252,"Treecko","Grass",40,45,35,70,"Cool and calm forest dweller."],
+[255,"Torchic","Fire",45,60,40,45,"Warm chick with a flame inside."],
+[258,"Mudkip","Water",50,70,50,40,"Its fin senses water currents."],
+[260,"Swampert","Water/Ground",100,110,90,60,"Lifts boulders with ease."],
+[280,"Ralts","Psychic/Fairy",28,25,25,40,"Senses people's emotions."],
+[359,"Absol","Dark",65,130,60,75,"Appears to warn of coming disasters."],
+[373,"Salamence","Dragon/Flying",95,135,80,100,"Soars wildly, spewing flames."],
+[376,"Metagross","Steel/Psychic",80,135,130,70,"Four brains; works like a supercomputer."],
+[382,"Kyogre","Water",100,100,90,90,"Expands the sea, brings heavy rain."],
+[383,"Groudon","Ground",100,150,140,90,"Expands land, brings harsh sun."],
+[385,"Jirachi","Steel/Psychic",100,100,100,100,"Grants wishes every 1,000 years."],
+[387,"Turtwig","Grass",55,68,64,31,"Soil on its shell grows a small tree."],
+[390,"Chimchar","Fire",44,58,44,61,"Energetic; fire burns on its tail."],
+[393,"Piplup","Water",53,51,53,40,"Proud penguin that hates help."],
+[403,"Shinx","Electric",45,65,34,45,"Its eyes can see through walls."],
+[470,"Leafeon","Grass",65,110,130,95,"Photosynthesizes like a plant."],
+[471,"Glaceon","Ice",65,60,110,65,"Can freeze its fur into needles."],
+[475,"Gallade","Psychic/Fighting",68,125,65,80,"A blade-armed knight."],
+[492,"Shaymin","Grass",100,100,100,100,"Gratitude Pokémon; blooms in flowers."],
+[700,"Sylveon","Fairy",95,65,65,60,"Calms enemies with its ribbon feelers."]
+];
+var E={Grass:"🌿",Fire:"🔥",Water:"💧",Electric:"⚡",Normal:"⭐",Fairy:"🧚",Fighting:"🥊",Rock:"🪨",Ground:"⛰️",Ghost:"👻",Poison:"☠️",Flying:"🕊️",Dragon:"🐉",Psychic:"🔮",Ice:"❄️",Steel:"⚙️",Dark:"🌑",Bug:"🐛"};
+var AB={1:"Overgrow / Chlorophyll",2:"Overgrow / Chlorophyll",3:"Overgrow / Chlorophyll",4:"Blaze / Solar Power",5:"Blaze / Solar Power",6:"Blaze / Solar Power",7:"Torrent / Rain Dish",8:"Torrent / Rain Dish",9:"Torrent / Rain Dish",12:"Compound Eyes / Tinted Lens",15:"Swarm / Sniper",18:"Keen Eye / Tangled Feet / Big Pecks",25:"Static / Lightning Rod",26:"Static / Lightning Rod",37:"Flash Fire / Drought",39:"Cute Charm / Competitive / Friend Guard",54:"Damp / Cloud Nine / Swift Swim",59:"Intimidate / Flash Fire / Justified",63:"Synchronize / Inner Focus / Magic Guard",65:"Synchronize / Inner Focus / Magic Guard",68:"Guts / No Guard / Steadfast",74:"Rock Head / Sturdy / Sand Veil",76:"Rock Head / Sturdy / Sand Veil",77:"Run Away / Flash Fire / Flame Body",79:"Oblivious / Own Tempo / Regenerator",81:"Magnet Pull / Sturdy / Analytic",92:"Levitate",94:"Cursed Body",95:"Rock Head / Sturdy / Weak Armor",104:"Rock Head / Lightning Rod / Battle Armor",115:"Early Bird / Scrappy / Inner Focus",123:"Swarm / Technician / Steadfast",129:"Swift Swim / Rattled",130:"Intimidate / Moxie",131:"Water Absorb / Shell Armor / Hydration",132:"Limber / Imposter",133:"Run Away / Adaptability / Anticipation",134:"Water Absorb / Hydration",135:"Volt Absorb / Quick Feet",136:"Flash Fire / Guts",143:"Immunity / Thick Fat / Gluttony",144:"Pressure / Snow Cloak",145:"Pressure / Static",146:"Pressure / Flame Body",147:"Shed Skin / Marvel Scale",149:"Inner Focus / Multiscale",150:"Pressure / Unnerve",151:"Synchronize",152:"Overgrow / Leaf Guard",155:"Blaze / Flash Fire",158:"Torrent / Sheer Force",175:"Hustle / Serene Grace / Super Luck",196:"Synchronize / Magic Bounce",197:"Synchronize / Inner Focus",212:"Swarm / Technician / Light Metal",214:"Swarm / Guts / Moxie",248:"Sand Stream / Unnerve",249:"Pressure / Multiscale",252:"Overgrow / Unburden",255:"Blaze / Speed Boost",258:"Torrent / Damp",260:"Torrent / Damp",280:"Synchronize / Trace / Telepathy",282:"Synchronize / Trace / Telepathy",359:"Pressure / Super Luck / Justified",373:"Intimidate / Moxie",376:"Clear Body / Light Metal",382:"Drizzle",383:"Drought",384:"Air Lock",385:"Serene Grace",387:"Overgrow / Shell Armor",390:"Blaze / Iron Fist",393:"Torrent / Defiant",403:"Rivalry / Intimidate / Guts",445:"Sand Veil / Rough Skin",448:"Steadfast / Inner Focus / Justified",470:"Leaf Guard / Chlorophyll",471:"Snow Cloak / Ice Body",475:"Steadfast / Justified",479:"Levitate",492:"Natural Cure",618:"Static / Limber / Sand Veil",658:"Torrent / Protean",700:"Cute Charm / Pixilate",855:"Weak Armor / Cursed Body",906:"Overgrow / Protean",907:"Overgrow / Protean",908:"Overgrow / Protean",909:"Blaze / Unaware",910:"Blaze / Unaware",911:"Blaze / Unaware",912:"Torrent / Moxie",913:"Torrent / Moxie",914:"Torrent / Moxie",916:"Lingering Aroma / Gluttony / Thick Fat",957:"Mold Breaker / Own Tempo / Pickpocket",958:"Mold Breaker / Own Tempo / Pickpocket",959:"Mold Breaker / Own Tempo / Pickpocket",1024:"Tera Shift"};
+var HZ=[25,384,448];P.forEach(function(p){if(p[0]>=855&&p[0]!==1024||p[0]===1024||p[0]===618||p[0]===479)HZ.push(p[0])});P.sort(function(a,b){return a[0]-b[0]});
+var sel="",$=function(i){return document.getElementById(i)};
+function pt(p){return p[2].split("/")}
+function col(p){return T[pt(p)[0]]}
+function tags(p){return pt(p).map(function(t){return"<i>"+t+"</i>"}).join("")}
+function svgFallback(p){var c=col(p);return'<svg style="display:none" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,4 90,27 90,73 50,96 10,73 10,27" fill="'+c+'" fill-opacity=".14" stroke="'+c+'" stroke-width="2"/><circle cx="50" cy="50" r="35" fill="none" stroke="'+c+'" stroke-width="1.5" stroke-dasharray="3 6" opacity=".8"/><text x="50" y="62" text-anchor="middle" font-size="34">'+E[pt(p)[0]]+"</text></svg>"}
+function badge(p,lazy){var url="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/"+p[0]+".png";return'<img src="'+url+'" alt="'+p[1]+'"'+(lazy?' loading="lazy"':'')+' onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">'+svgFallback(p)}
+function render(){
+var s=$("q").value.trim().toLowerCase();
+var L=P.filter(function(p){return(!sel||(sel==='HZ'?HZ.indexOf(p[0])>-1:pt(p).indexOf(sel)>-1))&&(!s||p[1].toLowerCase().indexOf(s)>-1||(AB[p[0]]||"").toLowerCase().indexOf(s)>-1||String(p[0])===s.replace("#",""))});
+$("cnt").textContent=L.length+" UNITS FOUND";
+$("g").innerHTML=L.length?L.map(function(p){return'<button class="card" style="--c:'+col(p)+'" data-i="'+p[0]+'"><span>'+badge(p,true)+"<em>#"+("000"+p[0]).slice(-4)+"</em><b>"+p[1]+'</b><div class="tg">'+tags(p)+"</div></span></button>"}).join(""):"<p>No match. Try another name or type.</p>";
+}
+function chips(){
+var h='<button class="chip" aria-pressed="'+(sel==="")+'" data-t="">All</button><button class="chip" aria-pressed="'+(sel==="HZ")+'" data-t="HZ">Horizons cast</button>';
+Object.keys(T).forEach(function(t){h+='<button class="chip" style="--c:'+T[t]+'" aria-pressed="'+(sel===t)+'" data-t="'+t+'">'+t+"</button>"});
+$("chips").innerHTML=h;
+}
+function show(id){
+var p=P.filter(function(x){return x[0]==id})[0],n=["HP","Attack","Defense","Speed"],h,k,j,f;
+h='<div class="in"><button class="x" aria-label="Close" data-x="1">✕</button>'+badge(p,false)+'<div class="no">#'+("000"+p[0]).slice(-4)+"</div><h2>"+p[1]+'</h2><div class="tg">'+tags(p)+"</div><p>"+p[7]+"</p><p><b>Abilities:</b> "+(AB[p[0]]||"-")+"</p>";
+for(k=0;k<4;k++){f=Math.max(1,Math.round(p[3+k]/160*10));h+='<div class="row"><span>'+n[k]+"</span><b>"+p[3+k]+'</b><div class="seg">';for(j=0;j<10;j++)h+='<span class="'+(j<f?"on":"")+'"></span>';h+="</div></div>"}
+h+='<p style="color:var(--mut);font-size:14px;margin:12px 0 0">Combined base stats (these four): '+(p[3]+p[4]+p[5]+p[6])+"</p></div>";
+$("d").style.setProperty("--c",col(p));$("d").innerHTML=h;$("d").showModal();
+}
+$("q").addEventListener("input",render);
+$("chips").addEventListener("click",function(e){var b=e.target.closest("[data-t]");if(!b)return;sel=b.dataset.t;chips();render()});
+$("g").addEventListener("click",function(e){var b=e.target.closest("[data-i]");if(b)show(b.dataset.i)});
+$("d").addEventListener("click",function(e){if(e.target===$("d")||e.target.dataset.x)$("d").close()});
+chips();render();
+</script>
+</body>
+</html>
